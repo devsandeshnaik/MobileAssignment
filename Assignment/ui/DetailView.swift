@@ -28,7 +28,7 @@ struct DetailView: View {
                 if let capacity = data.capacity {
                     Text("Capacity: \(capacity)")
                 }
-                if let description = data.description {
+                if let description = data.desc {
                     Text("Description: \(description)")
                         .padding(.top, 8)
                 }

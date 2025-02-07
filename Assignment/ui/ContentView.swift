@@ -15,12 +15,22 @@ struct ContentView: View {
     
     @ObservedObject var viewModel = ContentViewModel()
     @State private var path: [DeviceData] = [] // Navigation path
-    @Query(sort: []) var devices: [DeviceData] = []
+    @Query() var devices: [DeviceData] = []
     @State private var searchText: String = ""
 
     var body: some View {
         NavigationStack(path: $path) {
-            Group {
+            VStack {
+                if !newtworkMonitor.isConnected {
+                    Color.red.opacity(0.4)
+                        .clipShape(Capsule())
+                        .padding(.horizontal)
+                        .frame(height: 44)
+                        .overlay(alignment: .center) {
+                            Text("Offline data")
+                                .foregroundStyle(.primary)
+                        }
+                }
                 if let computers = viewModel.data, !computers.isEmpty {
                     DevicesList(devices: deviceList) { selectedComputer in
                         viewModel.navigateToDetail(navigateDetail: selectedComputer)
@@ -39,12 +49,6 @@ struct ContentView: View {
             }
             .onAppear {
                 viewModel.fetchAPI()
-//                let navigate = viewModel.navigateDetail
-//                if (navigate != nil) {
-//                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-//                        path.append(navigate!)
-//                    }
-//                }
             }
         }
         .onReceive(viewModel.$data) { data in
