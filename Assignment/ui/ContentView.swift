@@ -8,14 +8,15 @@
 import SwiftUI
 
 struct ContentView: View {
-    private var viewModel = ContentViewModel()
+    @ObservedObject var viewModel = ContentViewModel()
     @State private var path: [DeviceData] = [] // Navigation path
+    @State private var searchText: String = ""
 
     var body: some View {
         NavigationStack(path: $path) {
             Group {
                 if let computers = viewModel.data, !computers.isEmpty {
-                    DevicesList(devices: computers) { selectedComputer in
+                    DevicesList(devices: deviceList) { selectedComputer in
                         viewModel.navigateToDetail(navigateDetail: selectedComputer)
                     }
                 } else {
@@ -31,13 +32,23 @@ struct ContentView: View {
                 DetailView(device: computer)
             }
             .onAppear {
-                let navigate = viewModel.navigateDetail
-                if (navigate != nil) {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        path.append(navigate!)
-                    }
-                }
+                viewModel.fetchAPI()
+//                let navigate = viewModel.navigateDetail
+//                if (navigate != nil) {
+//                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+//                        path.append(navigate!)
+//                    }
+//                }
             }
         }
+        .searchable(text: $searchText)
     }
+    
+    var deviceList: [DeviceData] {
+        guard let data = viewModel.data else {
+            return []
+        }
+        return data.filter { $0.name.hasPrefix(searchText)}
+    }
+    
 }

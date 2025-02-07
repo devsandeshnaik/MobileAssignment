@@ -22,9 +22,16 @@ class ApiService : NSObject {
             
             if let data = data {
                 let jsonDecoder = JSONDecoder()
-                let empData = try! jsonDecoder.decode([DeviceData].self, from: data)
-                if (empData.isEmpty) {
-                    completion([])
+                do {
+                    let empData = try jsonDecoder.decode([DeviceData].self, from: data)
+                    if (empData.isEmpty) {
+                        completion([])
+                    } else {
+                        dump(empData)
+                        completion(empData)
+                    }
+                }  catch {
+                    print(error.localizedDescription)
                 }
             }
         }.resume()
